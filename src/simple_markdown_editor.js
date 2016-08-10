@@ -74,12 +74,12 @@ class SimpleMarkdownEditor extends React.Component {
         this.insertAtBeginningOfLine('* ');
     }
 
-    insertLink() {
+    insertLink(e, linkUrl) {
         let elem = document.getElementById(this.props.textAreaID),
             start = elem.selectionStart,
             end = elem.selectionEnd,
             text = elem.value,
-            link = "(http://www.mylink.com/)";
+            link = linkUrl ? `(${linkUrl})` : "(http://www.mylink.com/)";
 
         if (start === end) {
             elem.value = text.substring(0, start) + "[Link Text]" + link + text.substring(start, text.length);
@@ -91,12 +91,12 @@ class SimpleMarkdownEditor extends React.Component {
         }
     }
 
-    insertImage() {
+    insertImage(e, imageUrl) {
         let elem = document.getElementById(this.props.textAreaID),
             start = elem.selectionStart,
             end = elem.selectionEnd,
             text = elem.value,
-            link = "(http://myhost.com/my_image.jpg)";
+            link = imageUrl ? `(${imageUrl})` : "(http://myhost.com/my_image.jpg)";
 
         if (start === end) {
             elem.value = text.substring(0, start) + "![Image Description]" + link + text.substring(start, text.length);
@@ -113,8 +113,8 @@ class SimpleMarkdownEditor extends React.Component {
         let styles = merge({}, this.constructor.styles, this.props.styles),
             enabledButtons = merge({}, this.constructor.enabledButtons, this.props.enabledButtons),
             buttonHtmlText = merge({}, this.constructor.buttonHtmlText, this.props.buttonHtmlText),
-            additionalProps = merge({}, this.constructor.additionalProps, this.props.additionalProps);
-
+            additionalProps = merge({}, this.constructor.additionalProps, this.props.additionalProps),
+            additionalButtons = this.props.additionalButtons?this.props.additionalButtons:[];
         return (
             <div className={this.props.containerClass} style={styles.container}>
                 {enabledButtons.bold &&
@@ -160,6 +160,15 @@ class SimpleMarkdownEditor extends React.Component {
                 {enabledButtons.image &&
                 <div {...additionalProps.image} className={this.props.buttonClass} style={styles.button} onClick={this.insertImage.bind(this)}
                      dangerouslySetInnerHTML={{__html: buttonHtmlText.image}} />
+                }
+                {
+                    additionalButtons.map((button,index) => {
+                        return (
+                            <div key={index} {...additionalProps.image} className={this.props.buttonClass} style={styles.button} onClick={button.onClick} >
+                                {button.component}
+                            </div>
+                        );
+                    })
                 }
 
             </div>
